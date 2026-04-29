@@ -30,7 +30,7 @@
 {{-- SUMMARY CARDS --}}
 <div class="grid grid-cols-3 gap-6 mb-12">
     {{-- Card Pemasukan --}}
-    <div class="relative bg-white border-l-4 border-[#8D4B00] rounded-[48px] p-8 shadow-[0px_24px_48px_-12px_rgba(85,67,54,0.08)] flex flex-col gap-1">
+    <div class="relative bg-white border-l-4 border-[#98662c] rounded-[48px] p-8 shadow-[0px_24px_48px_-12px_rgba(85,67,54,0.08)] flex flex-col gap-1">
         <div class="flex items-start justify-between">
             <div class="bg-[#FFDCC3] rounded-[32px] p-3 inline-flex">
                 <svg class="w-5 h-3 text-[#8D4B00]" fill="currentColor" viewBox="0 0 20 12"><path d="M10 0L0 6l10 6 10-6L10 0z"/></svg>
@@ -129,7 +129,7 @@
                 <div class="flex items-center justify-between px-4 py-4 rounded-[48px] hover:bg-[#F9F9F8] transition-colors">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" 
-                             style="background-color: {{ $trx->type == 'income' ? '#D8E7D2' : '#EAE1DA' }}">
+                            style="background-color: {{ $trx->type == 'income' ? '#D8E7D2' : '#EAE1DA' }}">
                             
                             @if($trx->type == 'income')
                                 <svg class="w-5 h-5" fill="#526050" viewBox="0 0 20 20"><path d="M10 3l7 7H3l7-7z"/></svg>
