@@ -13,10 +13,10 @@
     {{-- Scripts & Styles --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-[#F9F9F8] font-sans">
+<body class="bg-[#F9F9F8] font-sans antialiased selection:bg-[#8D4B00] selection:text-white">
 
     {{-- Sidebar --}}
-    <aside class="fixed left-0 top-0 h-screen w-72 bg-[rgba(244,244,243,0.8)] backdrop-blur-md flex flex-col justify-between py-10 z-20 shadow-[24px_0px_48px_-12px_rgba(85,67,54,0.08)]">
+    <aside class="fixed left-0 top-0 h-screen w-72 bg-[rgba(244,244,243,0.8)] backdrop-blur-md flex flex-col justify-between py-10 z-20 shadow-[24px_0px_48px_-12px_rgba(85,67,54,0.08)] no-print">
 
         {{-- Logo --}}
         <div class="px-8 mb-12">
@@ -48,7 +48,8 @@
                 Dashboard
             </a>
 
-            {{-- Transaksi --}}
+            {{-- Transaksi (Hanya untuk Admin Saja) --}}
+            @auth
             <a href="{{ route('transaksi.index') }}" @class([
                 'flex items-center gap-4 px-8 py-4 font-[Manrope] text-sm tracking-wide transition-all',
                 'bg-white rounded-r-full font-bold text-[#92400E] shadow-sm' => request()->routeIs('transaksi.*'),
@@ -60,7 +61,7 @@
                 Transaksi
             </a>
 
-            {{-- Laporan --}}
+            {{-- Laporan (Hanya untuk Admin Saja) --}}
             <a href="{{ route('laporan.index') }}" @class([
                 'flex items-center gap-4 px-8 py-4 font-[Manrope] text-sm tracking-wide transition-all',
                 'bg-white rounded-r-full font-bold text-[#92400E] shadow-sm' => request()->routeIs('laporan.*'),
@@ -71,8 +72,9 @@
                 </svg>
                 Laporan
             </a>
+            @endauth
 
-            {{-- Kegiatan --}}
+            {{-- Kegiatan (Publik & Admin Bisa Akses) --}}
             <a href="{{ route('activities.index') }}" @class([
                 'flex items-center gap-4 px-8 py-4 font-[Manrope] text-sm tracking-wide transition-all',
                 'bg-white rounded-r-full font-bold text-[#92400E] shadow-sm' => request()->routeIs('activities.*'),
@@ -83,7 +85,9 @@
                 </svg>
                 Kegiatan
             </a>
-            {{-- AI Insight - NEW --}}
+
+            {{-- AI Insight (Hanya untuk Admin Saja) --}}
+            @auth
             <a href="{{ route('ai.index') }}" @class([
                 'flex items-center gap-4 px-8 py-4 font-[Manrope] text-sm tracking-wide transition-all group',
                 'bg-white rounded-r-full font-bold text-[#8D4B00] shadow-sm' => request()->routeIs('ai.*'),
@@ -94,11 +98,11 @@
                 </svg>
                 AI Insight
             </a>
+            @endauth
         </nav>
 
         {{-- Bottom Actions --}}
         <div class="px-8 border-t border-[rgba(219,194,176,0.1)] pt-8 space-y-4">
-
             <div class="flex flex-col gap-1">
                 <a href="#" class="flex items-center gap-4 py-2 font-[Manrope] font-medium text-sm text-[#554336] hover:text-[#8D4B00] transition-colors tracking-wide">
                     <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -107,23 +111,36 @@
                     Bantuan
                 </a>
                 
-                {{-- Logout Form --}}
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center gap-4 py-2 font-[Manrope] font-medium text-sm text-[#554336] hover:text-red-600 transition-colors tracking-wide">
-                        <svg class="w-[18px] h-[18px] flex-shrink-0" fill="currentColor" viewBox="0 0 18 18">
-                            <path d="M9 0C4 0 0 4 0 9s4 9 9 9 9-4 9-9-4-9-9-9zm0 16c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7zm0-11.5l-4 4h2.5V14h3v-5.5H13L9 4.5z"/>
+                {{-- Logika Autentikasi Kendali Pintu Masuk/Keluar --}}
+                @auth
+                    {{-- Logout Form jika User Terautentikasi --}}
+                    <form method="POST" action="{{ route('logout') }}" class="m-0">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center gap-4 py-2 font-[Manrope] font-medium text-sm text-[#554336] hover:text-red-600 transition-colors tracking-wide text-left">
+                            <svg class="w-[18px] h-[18px] flex-shrink-0" fill="currentColor" viewBox="0 0 18 18">
+                                <path d="M9 0C4 0 0 4 0 9s4 9 9 9 9-4 9-9-4-9-9-9zm0 16c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7zm0-11.5l-4 4h2.5V14h3v-5.5H13L9 4.5z"/>
+                            </svg>
+                            Keluar
+                        </button>
+                    </form>
+                @endauth
+
+                @guest
+                    {{-- Ganti Tombol Jadi Login Admin jika Pengunjung adalah Tamu --}}
+                    <a href="{{ route('login') }}" class="w-full flex items-center gap-4 py-2 font-[Manrope] font-bold text-sm text-[#8D4B00] hover:text-amber-900 transition-colors tracking-wide">
+                        <svg class="w-[18px] h-[18px] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
-                        Keluar
-                    </button>
-                </form>
+                        Login Admin
+                    </a>
+                @endguest
             </div>
         </div>
     </aside>
 
-    {{-- Sisanya tetap sama... --}}
+    {{-- Main View Container --}}
     <div class="ml-72 flex flex-col min-h-screen">
-        <header class="sticky top-0 z-10 bg-[#F9F9F8]/80 backdrop-blur-sm h-20 px-12 flex items-center justify-between">
+        <header class="sticky top-0 z-10 bg-[#F9F9F8]/80 backdrop-blur-sm h-20 px-12 flex items-center justify-between no-print">
             <div class="relative w-96">
                 <div class="absolute left-4 top-1/2 -translate-y-1/2">
                     <svg class="w-[18px] h-[18px] text-[#887364]" fill="currentColor" viewBox="0 0 18 18">
@@ -143,23 +160,40 @@
                     </button>
                     <button class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#F4F4F3] transition-colors">
                         <svg class="w-5 h-5 text-[#554336]" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 6a4 4 0 100 8 4 4 0 000-8zm8.7 2.9l-1.4-.2a7.7 7.7 0 00-.7-1.6l.8-1.2-1.4-1.4-1.2.8a7.7 7.7 0 00-1.6-.7L13 3h-2l-.2 1.4a7.7 7.7 0 00-1.6.7L8 4.3 6.6 5.7l.8 1.2a7.7 7.7 0 00-.7 1.6L5.3 8.7l-.3.3v2l1.4.2c.2.6.4 1.1.7 1.6l-.8 1.2 1.4 1.4 1.2-.8c.5.3 1 .5 1.6.7L11 17h2l.2-1.4c.6-.2 1.1-.4 1.6-.7l1.2.8 1.4-1.4-.8-1.2c.3-.5.5-1 .7-1.6l1.4-.2V9l-.3-.3V9zm-8.7 3a3 3 0 110-6 3 3 0 010 6z"/>
+                            <path d="M10 6a4 4 0 100 8 4 4 0 000-8zm8.7 2.9l-1.4-.2a7.7 7.7 0 00-.7-1.6l.8-1.2-1.4-1.4-1.2.8a7.7 7.7 0 00-1.6-.7L13 3h-2l-.2 1.4a7.7 7.7 0 00-1.6$.7L8 4.3 6.6 5.7l.8 1.2a7.7 7.7 0 00-.7 1.6L5.3 8.7l-.3.3v2l1.4.2c.2.6.4 1.1.7 1.6l-.8 1.2 1.4 1.4 1.2-.8c.5.3 1 .5 1.6.7L11 17h2l.2-1.4c.6-.2 1.1-.4 1.6-.7l1.2.8 1.4-1.4-.8-1.2c.3-.5.5-1 .7-1.6l1.4-.2V9l-.3-.3V9zm-8.7 3a3 3 0 110-6 3 3 0 010 6z"/>
                         </svg>
                     </button>
                 </div>
 
                 <div class="w-px h-8 bg-[rgba(219,194,176,0.3)]"></div>
 
+                {{-- Status Profil Atas --}}
                 <div class="flex items-center gap-3">
-                    <div class="text-right hidden sm:block">
-                        <p class="font-[Manrope] font-bold text-xs text-[#1A1C1C] tracking-tight leading-none mb-1">
-                            {{ auth()->user()->name ?? 'Admin Masjid' }}
-                        </p>
-                        <p class="font-[Inter] text-[10px] text-[#554336] uppercase tracking-tight">Bendahara</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-full bg-[#FFDCC3] border-2 border-white shadow-sm flex items-center justify-center font-[Manrope] font-bold text-sm text-[#8D4B00]">
-                        {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
-                    </div>
+                    @auth
+                        {{-- Keadaan Terautentikasi (Admin) --}}
+                        <div class="text-right hidden sm:block">
+                            <p class="font-[Manrope] font-bold text-xs text-[#1A1C1C] tracking-tight leading-none mb-1">
+                                {{ auth()->user()->name }}
+                            </p>
+                            <p class="font-[Inter] text-[10px] text-[#8D4B00] font-bold uppercase tracking-tight">Bendahara</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-[#FFDCC3] border-2 border-white shadow-sm flex items-center justify-center font-[Manrope] font-bold text-sm text-[#8D4B00]">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        </div>
+                    @endauth
+
+                    @guest
+                        {{-- Keadaan Pengunjung Publik (Tamu) --}}
+                        <div class="text-right hidden sm:block">
+                            <p class="font-[Manrope] font-bold text-xs text-[#554336] tracking-tight leading-none mb-1">
+                                Pengunjung Umum
+                            </p>
+                            <p class="font-[Inter] text-[10px] text-[#887364] uppercase tracking-tight">Mode Baca</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-[#F4F4F3] border border-[#DBC2B0]/30 shadow-sm flex items-center justify-center font-[Manrope] font-bold text-sm text-[#554336]" title="Silakan login untuk memodifikasi data">
+                            P
+                        </div>
+                    @endguest
                 </div>
             </div>
         </header>
@@ -169,10 +203,13 @@
         </main>
     </div>
 
-    <button class="fixed right-10 bottom-10 w-16 h-16 bg-[#8D4B00] text-white rounded-full flex items-center justify-center shadow-[0px_25px_50px_-12px_rgba(141,75,0,0.4)] hover:bg-[#7a4100] hover:scale-110 active:scale-95 transition-all z-30 group">
+    {{-- Floating Action Button Bulat `+` (Hanya Muncul Jika Admin Sudah Login) --}}
+    @auth
+    <a href="{{ route('transaksi.create') }}" class="fixed right-10 bottom-10 w-16 h-16 bg-[#8D4B00] text-white rounded-full flex items-center justify-center shadow-[0px_25px_50px_-12px_rgba(141,75,0,0.4)] hover:bg-[#7a4100] hover:scale-110 active:scale-95 transition-all z-30 group no-print">
         <svg class="w-6 h-6 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/>
         </svg>
-    </button>
+    </a>
+    @endauth
 </body>
 </html>

@@ -1,71 +1,94 @@
 <x-guest-layout>
-    <div class="min-h-screen flex flex-col justify-center items-center bg-[#F9F9F8] p-6">
+    <div class="min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-[#F9F9F8] font-[Manrope]">
         
-        {{-- Card Login --}}
-        <div class="w-full max-w-[480px] bg-white rounded-[48px] p-12 shadow-sm border border-[#DBC2B0]/10">
+        {{-- Sisi Kiri: Visual Branding & Atmofser Hangat (Hidden on Mobile) --}}
+        <div class="hidden lg:flex lg:col-span-5 bg-[#8D4B00] relative flex-col justify-between p-16 overflow-hidden">
+            {{-- Decorative pattern overlay --}}
+            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#FFF_1px,transparent_1px)] [background-size:16px_16px]"></div>
             
-            {{-- Logo & Header --}}
-            <div class="text-center mb-10">
-                <div class="w-16 h-16 bg-[#8D4B00] rounded-[24px] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#8D4B00]/20">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                </div>
-                <h1 class="font-[Manrope] font-black text-3xl text-[#1A1C1C] mb-2">Selamat Datang</h1>
-                <p class="font-[Manrope] text-sm text-[#887364]">Masuk untuk mengelola keuangan masjid</p>
+            <div class="relative z-10 space-y-2">
+                <p class="font-[Inter] font-bold text-[10px] tracking-[0.2em] text-[#FFDCC3] uppercase">SISTEM INFORMASI MASJID</p>
+                <h2 class="text-3xl font-black text-white tracking-tight">Al-Amanah</h2>
             </div>
 
-            <x-auth-session-status class="mb-6" :status="session('status')" />
+            <div class="relative z-10 space-y-4">
+                <p class="text-2xl font-medium text-[#FFDCC3] leading-relaxed">
+                    "Membangun transparansi umat, memakmurkan baitullah dengan amanah dan ketulusan."
+                </p>
+                <div class="h-1 w-12 bg-[#FFDCC3] rounded-full"></div>
+            </div>
 
-            <form method="POST" action="{{ route('login') }}" class="flex flex-col gap-5">
-                @csrf
-
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-wider text-[#887364] ml-2">Email Pengurus</label>
-                    <input id="email" type="email" name="email" :value="old('email')" required autofocus 
-                        class="w-full bg-[#F9F9F8] border-none rounded-[24px] py-4 px-6 font-bold text-[#1A1C1C] focus:ring-2 focus:ring-[#8D4B00] transition-all placeholder:text-[#DBC2B0]" 
-                        placeholder="nama@email.com">
-                    <x-input-error :messages="$errors->get('email')" class="mt-1 ml-2" />
-                </div>
-
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center px-2">
-                        <label class="text-[10px] font-black uppercase tracking-wider text-[#887364]">Kata Sandi</label>
-                        @if (Route::has('password.request'))
-                            <a class="text-[10px] font-bold text-[#8D4B00] hover:underline" href="{{ route('password.request') }}">
-                                Lupa sandi?
-                            </a>
-                        @endif
-                    </div>
-                    <input id="password" type="password" name="password" required autocomplete="current-password"
-                        class="w-full bg-[#F9F9F8] border-none rounded-[24px] py-4 px-6 font-bold text-[#1A1C1C] focus:ring-2 focus:ring-[#8D4B00] transition-all placeholder:text-[#DBC2B0]"
-                        placeholder="••••••••">
-                    <x-input-error :messages="$errors->get('password')" class="mt-1 ml-2" />
-                </div>
-
-                <div class="flex items-center ml-2 mt-1">
-                    <label for="remember_me" class="inline-flex items-center cursor-pointer">
-                        <input id="remember_me" type="checkbox" class="rounded-lg border-[#DBC2B0] text-[#8D4B00] shadow-sm focus:ring-[#8D4B00]" name="remember">
-                        <span class="ms-2 text-xs font-bold text-[#887364]">Ingat sesi saya</span>
-                    </label>
-                </div>
-
-                <div class="mt-4">
-                    <button type="submit" class="w-full bg-[#1A1C1C] hover:bg-[#8D4B00] text-white font-black py-5 rounded-[24px] text-lg transition-all shadow-lg hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3">
-                        Masuk Sekarang
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                        </svg>
-                    </button>
-                </div>
-            </form>
-            
-            <p class="text-center mt-8 text-xs text-[#887364] font-medium">
-                Belum punya akun? <span class="text-[#1A1C1C] font-black">Hubungi Admin Utama</span>
+            <p class="relative z-10 text-xs font-bold text-[#FFDCC3]/60 font-[Inter] tracking-wide">
+                &copy; 2026 DKM Al-Amanah. All Rights Reserved.
             </p>
         </div>
 
-        {{-- Footer --}}
-        <p class="mt-8 text-[10px] font-black uppercase tracking-[0.2em] text-[#DBC2B0]">E-Masjid • Transparansi Keuangan</p>
+        {{-- Sisi Kanan: Form Autentikasi Elit --}}
+        <div class="col-span-1 lg:col-span-7 flex flex-col justify-center px-8 sm:px-16 lg:px-24 xl:px-32 py-12">
+            <div class="w-full max-w-[440px] mx-auto space-y-8">
+                
+                {{-- Header Form --}}
+                <div class="space-y-2">
+                    <h1 class="text-3xl font-black text-[#1A1C1C] tracking-tight">Selamat Datang Kembali</h1>
+                    <p class="text-sm font-bold text-[#887364]">Silakan masuk untuk mengelola operasional DKM.</p>
+                </div>
+
+                {{-- Session Status --}}
+                <x-auth-session-status class="mb-4" :status="session('status')" />
+
+                <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                    @csrf
+
+                    {{-- Email Address --}}
+                    <div class="space-y-1.5">
+                        <label for="email" class="text-xs font-black uppercase text-[#887364] tracking-wider">Alamat Email</label>
+                        <div class="relative">
+                            <input id="email" type="email" name="email" :value="old('email')" required autofocus autocomplete="username"
+                                class="w-full rounded-2xl border-[#DBC2B0]/40 focus:border-[#8D4B00] focus:ring-[#8D4B00] text-sm py-3.5 px-4 text-[#1A1C1C]" 
+                                placeholder="nama@email.com">
+                        </div>
+                        <x-input-error :messages="$errors->get('email')" class="mt-1" />
+                    </div>
+
+                    {{-- Password --}}
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-center">
+                            <label for="password" class="text-xs font-black uppercase text-[#887364] tracking-wider">Kata Sandi</label>
+                            @if (Route::has('password.request'))
+                                <a class="text-xs font-bold text-[#8D4B00] hover:underline" href="{{ route('password.request') }}">
+                                    Lupa sandi?
+                                </a>
+                            @endif
+                        </div>
+                        <input id="password" type="password" name="password" required autocomplete="current-password"
+                            class="w-full rounded-2xl border-[#DBC2B0]/40 focus:border-[#8D4B00] focus:ring-[#8D4B00] text-sm py-3.5 px-4 text-[#1A1C1C]"
+                            placeholder="••••••••">
+                        <x-input-error :messages="$errors->get('password')" class="mt-1" />
+                    </div>
+
+                    {{-- Remember Me --}}
+                    <div class="flex items-center justify-between pt-1">
+                        <label for="remember_me" class="inline-flex items-center cursor-pointer">
+                            <input id="remember_me" type="checkbox" name="remember" class="rounded-md border-[#DBC2B0]/60 text-[#8D4B00] focus:ring-[#8D4B00] w-4 h-4">
+                            <span class="ms-2 text-xs font-bold text-[#554336]">Ingat perangkat ini</span>
+                        </label>
+                    </div>
+
+                    {{-- Submit Button --}}
+                    <button type="submit" class="w-full bg-[#1A1C1C] hover:bg-black text-white font-bold py-4 px-6 rounded-2xl text-sm transition-all shadow-sm flex justify-center items-center gap-2 mt-2">
+                        Masuk ke Dashboard
+                    </button>
+                </form>
+
+                {{-- Sign Up Route Link --}}
+                @if (Route::has('register'))
+                    <p class="text-center text-xs font-bold text-[#887364]">
+                        Belum punya akun pengurus? 
+                        <a href="{{ route('register') }}" class="text-[#8D4B00] hover:underline ml-1">Daftar Akun Baru</a>
+                    </p>
+                @endif
+
+            </div>
+        </div>
     </div>
 </x-guest-layout>

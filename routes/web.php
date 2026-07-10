@@ -1,58 +1,51 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\TransactionController; // Pastikan nama Controller sesuai
+use App\Http\Controllers\TransactionController; 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ActivityController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AiInsightController;
 
-/*
-|--------------------------------------------------------------------------
-| Public Routes
-|--------------------------------------------------------------------------
-*/
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index']);
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+Route::get('/transaksi', [TransactionController::class, 'index'])->name('transaksi.index');
+
+Route::get('/laporan', [TransactionController::class, 'laporan'])->name('laporan.index');
+
+Route::get('/kegiatan', [ActivityController::class, 'index'])->name('activities.index');
 
 
-/*
-|--------------------------------------------------------------------------
-| Authenticated Routes (Harus Login)
-|--------------------------------------------------------------------------
-*/
+// 2. Rute Autentikasi (Harus Login) - Khusus Operasional Pengurus / Admin DKM
 
 Route::middleware(['auth'])->group(function () {
 
-    // 1. Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // CRUD Transaksi
+    Route::resource('transaksi', TransactionController::class)->except(['index']);
 
-    // 2. Transaksi (Gunakan Resource agar Edit, Update, Delete otomatis terdaftar)
-    // Kita pakai nama 'transaksi' supaya sinkron dengan view kamu
-    Route::resource('transaksi', TransactionController::class);
+    // CRUD Agenda Kegiatan
+    Route::prefix('kegiatan')->name('activities.')->group(function () {
+        Route::get('/tambah', [ActivityController::class, 'create'])->name('create');
+        Route::post('/simpan', [ActivityController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [ActivityController::class, 'edit'])->name('edit');
+        Route::put('/{id}/update', [ActivityController::class, 'update'])->name('update');
+        Route::delete('/{id}/hapus', [ActivityController::class, 'destroy'])->name('destroy');
+    });
 
-    // 3. Fitur Lain (AI, Laporan, Kegiatan)
-    Route::get('/ai-insight', function () {
-        return view('ai.index');
-    })->name('ai.index');
+    // Fitur AI Insight Analisis Kas
+    Route::get('/ai-insight', [AiInsightController::class, 'index'])->name('ai.index');
 
-    Route::get('/laporan', function () {
-        return view('reports.index');
-    })->name('laporan.index');
 
-    Route::get('/kegiatan', function () {
-        return view('activities.index');
-    })->name('activities.index');
-
-    // 4. Categories
+    // Pengelolaan Kategori Transaksi
     Route::resource('categories', CategoryController::class);
 
-    // 5. Profile Management
-    Route::controller(ProfileController::class)->group(function () {
-        Route::get('/profile', 'edit')->name('profile.edit');
-        Route::patch('/profile', 'update')->name('profile.update');
-        Route::delete('/profile', 'destroy')->name('profile.destroy');
+    // Manajemen Profil Pengurus
+    Route::controller(ProfileController::class)->prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', 'edit')->name('edit');
+        Route::patch('/', 'update')->name('update');
+        Route::delete('/', 'destroy')->name('destroy');
     });
 });
 
