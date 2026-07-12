@@ -7,8 +7,12 @@
     <div class="w-full flex justify-between items-start">
         <div class="max-w-2xl">
             <h1 class="font-[Manrope] font-black text-[48px] leading-tight tracking-[-0.04em] text-[#1A1C1C] mb-2">Manajemen Transaksi</h1>
-            <p class="font-[Manrope] text-lg text-[#554336]">Kelola arus kas masuk dan keluar masjid dengan transparansi penuh.</p>
+            <p class="font-[Manrope] text-lg text-[#554336]">Kelola arus kas masuk dan keluar dengan transparansi penuh.</p>
         </div>
+        {{-- TOMBOL AKSES MUTASI INTERNAL BARU --}}
+        <a href="{{ route('transaksi.mutasi.create') }}" class="flex items-center gap-2 bg-[#1A1C1C] hover:bg-[#8D4B00] text-white font-[Manrope] font-bold text-sm rounded-full px-5 py-3 shadow transition-all">
+            🔄 Mutasi Internal Kas
+        </a>
     </div>
 
     @if(session('success'))
@@ -49,8 +53,27 @@
                             class="w-full bg-[#F9F9F8] border-none rounded-[24px] py-4 px-6 font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-[#8D4B00] transition-all">
                             {{-- Option akan diisi oleh JavaScript --}}
                         </select>
-                        
-                        {{-- Simbol Dropdown (Chevron Down) --}}
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-6 pointer-events-none text-[#887364]">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- NEW: DROPDOWN KANTONG KAS DENGAN VISUAL MEWAH BAWAAN LU --}}
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase text-[#887364]">Kantong Kas</label>
+                    <div class="relative">
+                        <select name="wallet_id" required 
+                            class="w-full bg-[#F9F9F8] border-none rounded-[24px] py-4 px-6 font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-[#8D4B00] transition-all">
+                            <option value="" disabled selected>Pilih Kantong Kas...</option>
+                            @foreach($wallets as $w)
+                                <option value="{{ $w->id }}">
+                                    {{ $w->slug == 'cash' ? '💵' : '🏦' }} {{ $w->name }}
+                                </option>
+                            @endforeach
+                        </select>
                         <div class="absolute inset-y-0 right-0 flex items-center pr-6 pointer-events-none text-[#887364]">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
@@ -93,7 +116,7 @@
                     </div>
                 </div>
 
-                {{-- Pilih Kategori (Hanya muncul sesuai tipe yang dipilih) --}}
+                {{-- Pilih Kategori --}}
                 <div class="flex items-start gap-4">
                     <span class="text-[10px] font-black uppercase text-[#887364] w-20 mt-2">Kategori</span>
                     <div class="flex flex-wrap gap-2">
@@ -148,6 +171,10 @@
                         <div class="flex items-center gap-2">
                             <h4 class="font-black text-lg text-[#1A1C1C]">{{ $t->title }}</h4>
                             <span class="text-[9px] font-black px-2 py-0.5 rounded bg-[#F4F4F3] text-[#887364]">{{ $t->badge }}</span>
+                            {{-- NEW: Badge penanda kantong kas di daftar riwayat --}}
+                            <span class="text-[9px] font-extrabold px-2 py-0.5 rounded {{ $t->wallet && $t->wallet->slug == 'cash' ? 'bg-[#FFDCC3] text-[#8D4B00]' : 'bg-[#D8E7D2] text-[#526050]' }} uppercase">
+                                {{ $t->wallet ? $t->wallet->name : 'Unassigned' }}
+                            </span>
                         </div>
                         <p class="text-sm text-[#887364]">{{ $t->date->format('d M Y') }} • <span class="font-bold">{{ $t->category }}</span></p>
                     </div>
@@ -202,12 +229,12 @@
         if (type === 'income') {
             btnIncome.className = "py-3 rounded-[28px] transition-all font-black text-[10px] uppercase bg-white shadow-sm text-[#8D4B00] border border-[#DBC2B0]";
             btnExpense.className = "py-3 rounded-[28px] transition-all font-black text-[10px] uppercase text-[#887364]";
-            submitBtn.className = "w-full bg-[#8D4B00] py-5 rounded-[24px] text-white font-black text-lg mt-4";
+            submitBtn.className = "w-full bg-[#8D4B00] py-5 rounded-[24px] text-white font-black text-lg mt-4 shadow-lg hover:scale-[1.02] active:scale-95";
             submitBtn.innerText = "Simpan Pemasukan";
         } else {
             btnExpense.className = "py-3 rounded-[28px] transition-all font-black text-[10px] uppercase bg-white shadow-sm text-[#BA1A1A] border border-[#BA1A1A]/30";
             btnIncome.className = "py-3 rounded-[28px] transition-all font-black text-[10px] uppercase text-[#887364]";
-            submitBtn.className = "w-full bg-[#BA1A1A] py-5 rounded-[24px] text-white font-black text-lg mt-4";
+            submitBtn.className = "w-full bg-[#BA1A1A] py-5 rounded-[24px] text-white font-black text-lg mt-4 shadow-lg hover:scale-[1.02] active:scale-95";
             submitBtn.innerText = "Simpan Pengeluaran";
         }
 

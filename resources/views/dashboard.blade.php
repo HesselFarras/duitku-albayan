@@ -5,7 +5,7 @@
 <div class="flex items-end justify-between mb-12">
     <div class="space-y-2">
         <p class="font-[Inter] font-bold text-[12px] tracking-[0.1em] uppercase text-[#8D4B00]">Periode Ini</p>
-        <h2 class="font-[Manrope] font-black text-[36px] leading-none tracking-[-0.05em] text-[#554336]">Saldo Masjid</h2>
+        <h2 class="font-[Manrope] font-black text-[36px] leading-none tracking-[-0.05em] text-[#554336]">Saldo Umum</h2>
         <div class="flex items-baseline gap-2 pt-2">
             <span class="font-[Manrope] font-bold text-xl text-[#887364]">Rp</span>
             <span class="font-[Manrope] font-black text-[60px] leading-none tracking-[-0.05em] text-[#1A1C1C]">
@@ -30,6 +30,31 @@
                 🔐 Login Pengurus
             </a>
         @endauth
+    </div>
+</div>
+
+{{-- BREAKDOWN KOMPOSISI SALDO KANTONG KAS (CASH vs BANK) --}}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="flex items-center justify-between p-6 bg-white border border-[#DBC2B0]/20 rounded-[32px] shadow-[0px_24px_48px_-12px_rgba(85,67,54,0.04)]">
+        <div class="flex items-center gap-4">
+            <span class="text-3xl bg-[#FFDCC3]/50 p-3 rounded-2xl">💵</span>
+            <div>
+                <p class="font-[Inter] text-[10px] font-bold text-[#887364] uppercase tracking-wider">Kas Tunai (Cash)</p>
+                <h4 class="font-[Manrope] font-black text-2xl text-[#1A1C1C] mt-0.5">Rp {{ number_format($saldoCash, 0, ',', '.') }}</h4>
+            </div>
+        </div>
+        <span class="text-xs font-[Manrope] font-bold text-[#8D4B00] bg-[#8D4B00]/5 px-3 py-1.5 rounded-full">Fisik di Laci</span>
+    </div>
+
+    <div class="flex items-center justify-between p-6 bg-white border border-[#DBC2B0]/20 rounded-[32px] shadow-[0px_24px_48px_-12px_rgba(85,67,54,0.04)]">
+        <div class="flex items-center gap-4">
+            <span class="text-3xl bg-[#D8E7D2]/60 p-3 rounded-2xl">🏦</span>
+            <div>
+                <p class="font-[Inter] text-[10px] font-bold text-[#887364] uppercase tracking-wider">Kas Rekening (Bank)</p>
+                <h4 class="font-[Manrope] font-black text-2xl text-[#1A1C1C] mt-0.5">Rp {{ number_format($saldoBank, 0, ',', '.') }}</h4>
+            </div>
+        </div>
+        <span class="text-xs font-[Manrope] font-bold text-[#526050] bg-[#526050]/5 px-3 py-1.5 rounded-full">Saldo Digital</span>
     </div>
 </div>
 
@@ -78,7 +103,7 @@
 {{-- MAIN CONTENT GRID --}}
 <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
     <div class="flex flex-col gap-8">
-        {{-- BAGIAN CHART — ANTI GAGAL DENGAN TOOLTIP NOMINAL ASLI --}}
+        {{-- BAGIAN CHART --}}
         <div class="relative bg-white rounded-[48px] p-10 shadow-[0px_24px_48px_-12px_rgba(85,67,54,0.08)]">
             <div class="flex items-center justify-between mb-10">
                 <h4 class="font-[Manrope] font-extrabold text-xl text-[#1A1C1C]">Statistik Keuangan (6 Bulan Terakhir)</h4>
@@ -97,30 +122,20 @@
             <div class="flex items-end justify-between gap-4 h-[220px] w-full bg-[#FDFDFD] rounded-2xl p-4">
                 @foreach($chartData as $item)
                 <div class="flex-1 h-full flex flex-col justify-end items-center gap-3">
-                    
-                    {{-- Area Batang Grafik + Tooltip --}}
                     <div class="w-full flex items-end justify-center gap-1.5 h-full relative group/bar">
-                        
-                        {{-- Floating Card Tooltip Kursor --}}
                         <div class="absolute bottom-full mb-2 bg-[#1A1C1C] text-white text-[10px] font-bold py-2 px-3 rounded-xl opacity-0 group-hover/bar:opacity-100 transition-opacity pointer-events-none z-10 shadow-xl text-center min-w-[120px]">
                             <span class="text-green-400">M: Rp {{ number_format($item['income_raw'], 0, ',', '.') }}</span><br>
                             <span class="text-red-400">K: Rp {{ number_format($item['expense_raw'], 0, ',', '.') }}</span>
                         </div>
-
-                        {{-- Bar Pemasukan --}}
                         <div 
                             class="w-full max-w-[16px] bg-[#8D4B00] rounded-t-md transition-all duration-700"
                             style="height: {{ number_format($item['masuk'], 2, '.', '') }}% !important; min-height: 2px;"
                         ></div>
-                        
-                        {{-- Bar Pengeluaran --}}
                         <div 
                             class="w-full max-w-[16px] bg-[#645D58] opacity-30 rounded-t-md transition-all duration-700"
                             style="height: {{ number_format($item['keluar'], 2, '.', '') }}% !important; min-height: 2px;"
                         ></div>
                     </div>
-
-                    {{-- Nama Bulan --}}
                     <span class="font-[Inter] font-bold text-[10px] text-[#887364] uppercase tracking-tighter">
                         {{ $item['bulan'] }}
                     </span>
@@ -142,7 +157,6 @@
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" 
                             style="background-color: {{ $trx->type == 'income' ? '#D8E7D2' : '#EAE1DA' }}">
-                            
                             @if($trx->type == 'income')
                                 <svg class="w-5 h-5" fill="#526050" viewBox="0 0 20 20"><path d="M10 3l7 7H3l7-7z"/></svg>
                             @else
@@ -151,7 +165,12 @@
                         </div>
                         <div>
                             <p class="font-[Manrope] font-bold text-base text-[#1A1C1C]">{{ $trx->title }}</p>
-                            <p class="font-[Manrope] text-xs text-[#887364]">{{ $trx->date->format('d M Y') }}</p>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="font-[Manrope] text-xs text-[#887364]">{{ $trx->date->format('d M Y') }}</span>
+                                <span class="inline-flex text-[9px] font-extrabold px-2 py-0.5 rounded bg-gray-100 text-gray-600 uppercase">
+                                    {{ $trx->wallet ? $trx->wallet->name : 'Unassigned' }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="text-right">
@@ -185,7 +204,7 @@
             </div>
         </div>
 
-        {{-- NEW: Diagram Lingkaran Alokasi Pengeluaran Bulanan --}}
+        {{-- Diagram Lingkaran Alokasi Pengeluaran Bulanan --}}
         <div class="bg-white rounded-[48px] p-8 border border-[#DBC2B0]/10 shadow-[0px_24px_48px_-12px_rgba(85,67,54,0.08)] flex flex-col items-center">
             <h5 class="font-[Manrope] font-extrabold text-sm text-[#1A1C1C] mb-6 self-start">Alokasi Pengeluaran (Bulan Ini)</h5>
             

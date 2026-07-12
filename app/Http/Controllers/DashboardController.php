@@ -11,11 +11,31 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Ambil data saldo (All Time)
-        $totalPemasukan = Transaction::where('type', 'income')->sum('amount') ?: 0;
-        $totalPengeluaran = Transaction::where('type', 'expense')->sum('amount') ?: 0;
+        // 1. Ambil data saldo (All Time) - KECUALIKAN KATEGORI MUTASI KAS
+        $totalPemasukan = Transaction::where('type', 'income')
+            ->where('category', '!=', 'Mutasi Kas') // <-- Biar mutasi masuk ga dihitung pemasukan organisasi
+            ->sum('amount') ?: 0;
+
+        $totalPengeluaran = Transaction::where('type', 'expense')
+            ->where('category', '!=', 'Mutasi Kas') // <-- Biar mutasi keluar ga dihitung pengeluaran organisasi
+            ->sum('amount') ?: 0;
+
         $totalSaldo = $totalPemasukan - $totalPengeluaran;
         $surplus = $totalSaldo;
+
+        // --- UPDATE UTAMA: HITUNG SALDO SPESIFIK KANTONG KAS (CASH vs BANK) ---
+        $saldoCash = DB::table('transactions')
+            ->join('wallets', 'transactions.wallet_id', '=', 'wallets.id')
+            ->where('wallets.slug', 'cash')
+            ->selectRaw("SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) as total")
+            ->value('total') ?? 0;
+
+        $saldoBank = DB::table('transactions')
+            ->join('wallets', 'transactions.wallet_id', '=', 'wallets.id')
+            ->where('wallets.slug', 'bank')
+            ->selectRaw("SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) as total")
+            ->value('total') ?? 0;
+        // ----------------------------------------------------------------------
 
         // 2. LOGIKA CHART BATANG MANUAL (6 Bulan Terakhir)
         $tempData = [];
@@ -24,8 +44,16 @@ class DashboardController extends Controller
             $start = $date->copy()->startOfMonth()->toDateString();
             $end = $date->copy()->endOfMonth()->toDateString();
 
-            $income = Transaction::where('type', 'income')->whereBetween('date', [$start, $end])->sum('amount') ?: 0;
-            $expense = Transaction::where('type', 'expense')->whereBetween('date', [$start, $end])->sum('amount') ?: 0;
+            // KECUALIKAN MUTASI KAS BIAR GRAFIKNYA STERIL
+            $income = Transaction::where('type', 'income')
+                ->where('category', '!=', 'Mutasi Kas') // <-- Selipkan ini
+                ->whereBetween('date', [$start, $end])
+                ->sum('amount') ?: 0;
+
+            $expense = Transaction::where('type', 'expense')
+                ->where('category', '!=', 'Mutasi Kas') // <-- Selipkan ini
+                ->whereBetween('date', [$start, $end])
+                ->sum('amount') ?: 0;
 
             $tempData[] = [
                 'bulan' => $date->translatedFormat('M'),
@@ -54,7 +82,7 @@ class DashboardController extends Controller
             ];
         }
 
-        // 3. TAMBAHAN: Data Alokasi Pengeluaran per Kategori (Bulan Ini) buat Pie/Doughnut Chart
+        // 3. Data Alokasi Pengeluaran per Kategori (Bulan Ini) buat Pie/Doughnut Chart
         $expenseByCategory = Transaction::where('type', 'expense')
             ->whereMonth('date', Carbon::now()->month)
             ->whereYear('date', Carbon::now()->year)
@@ -65,16 +93,16 @@ class DashboardController extends Controller
         $pieLabels = $expenseByCategory->pluck('category');
         $pieData = $expenseByCategory->pluck('total');
 
-        // 4. Ambil 5 Transaksi Terakhir
-        $recentTransactions = Transaction::orderBy('date', 'desc')->take(5)->get();
+        // 4. Ambil 5 Transaksi Terakhir (Diload dengan relasi wallet agar badge di view aman)
+        $recentTransactions = Transaction::with('wallet')->orderBy('date', 'desc')->take(5)->get();
 
         // 5. AI Insights Sederhana
-        $aiInsight1 = "Saldo masjid saat ini sebesar Rp " . number_format($totalSaldo, 0, ',', '.') . ".";
+        $aiInsight1 = "Saldo kas saat ini sebesar Rp " . number_format($totalSaldo, 0, ',', '.') . ".";
         $aiInsight2 = $totalSaldo > 0 
-            ? "Manajemen kas terpantau aman dan surplus, siap dialokasikan untuk program umat."
+            ? "Manajemen kas terpantau aman dan surplus, siap dialokasikan untuk program organisasi."
             : "Manajemen kas terpantau cukup aktif bulan ini.";
 
-        // Kirim semua variabel ke view dashboard
+        // Kirim semua variabel beserta variabel kantong kas baru ke view dashboard
         return view('dashboard', compact(
             'totalPemasukan', 
             'totalPengeluaran', 
@@ -85,7 +113,9 @@ class DashboardController extends Controller
             'aiInsight1', 
             'aiInsight2',
             'pieLabels',
-            'pieData'
+            'pieData',
+            'saldoCash', // <-- Variabel baru terlempar aman ke view
+            'saldoBank'  // <-- Variabel baru terlempar aman ke view
         ));
     }
 }
